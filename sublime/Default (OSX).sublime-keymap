@@ -1,0 +1,3 @@
+[
+  { "keys": ["alt+shift+k"], "command": "add_to_search_add" }
+]

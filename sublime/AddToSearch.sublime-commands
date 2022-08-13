@@ -1,0 +1,14 @@
+[
+  {
+    "caption": "AddToSearch: use",
+    "command": "add_to_search_use"
+  },
+  {
+    "caption": "AddToSearch: open",
+    "command": "add_to_search_open"
+  },
+  {
+    "caption": "AddToSearch: add",
+    "command": "add_to_search_add"
+  }
+]

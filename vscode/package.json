@@ -1,0 +1,51 @@
+{
+  "name": "add-to-search",
+  "displayName": "AddToSearch",
+  "description": "",
+  "version": "0.0.1",
+  "repository": {},
+  "publisher": "turuslan",
+  "engines": {
+    "vscode": "^1.70.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:AddToSearch.use",
+    "onCommand:AddToSearch.open",
+    "onCommand:AddToSearch.add"
+  ],
+  "main": "./AddToSearch.js",
+  "contributes": {
+    "languages": [{
+      "id": "search-result",
+      "extensions": [".search"]
+    }],
+    "keybindings": [{
+      "key": "alt+shift+k",
+      "command": "AddToSearch.add",
+      "when": "isMac && editorTextFocus"
+    }],
+    "commands": [{
+      "command": "AddToSearch.use",
+      "title": "AddToSearch: use"
+    }, {
+      "command": "AddToSearch.open",
+      "title": "AddToSearch: open"
+    }, {
+      "command": "AddToSearch.add",
+      "title": "AddToSearch: add"
+    }]
+  },
+  "scripts": {
+    "ts": "tsc",
+    "ts-watch": "tsc --watch",
+    "vsix": "npm run ts && vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.70.0",
+    "typescript": "^4.7.4",
+    "vsce": "^2.10.0"
+  }
+}
