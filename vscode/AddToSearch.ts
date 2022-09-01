@@ -55,12 +55,8 @@ async function withAddTo(
 }
 
 type Arg = [string, [number, string][]];
-function make_arg(editor: vscode.TextEditor): Arg | null {
+function make_arg(editor: vscode.TextEditor): Arg {
   const { document } = editor;
-  const path = document.fileName;
-  if (!path) {
-    return null;
-  }
   const ilines = new Set<number>();
   for (const sel of editor.selections) {
     for (let line = sel.start.line; line <= sel.end.line; ++line) {
@@ -68,7 +64,7 @@ function make_arg(editor: vscode.TextEditor): Arg | null {
     }
   }
   return [
-    path,
+    document.fileName,
     Array.from(ilines).sort(cmp).map((iline) => document.lineAt(iline)).map(
       (line) => [line.lineNumber, line.text],
     ),
@@ -161,10 +157,11 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerTextEditorCommand(
       "AddToSearch.add",
       async (editor) => {
-        const arg = make_arg(editor);
-        if (!arg) {
+        const { document } = editor;
+        if (!document.fileName) {
           return;
         }
+        const arg = make_arg(editor);
         await withAddTo(context, async (editor) => {
           const { document } = editor;
           const lines = getLines(document);
