@@ -102,7 +102,7 @@ def g_merge(lines: typing.List[str], arg: Arg):
     i = len(lines)
     if not lines or lines[-1]:
       yield (i, "")
-    glast = (i, [])
+    glast = (i - 1, [])
     yield (i, "%s:" % arg[0])
   mm = 0
   ii = [glast[0], *(i for i, _ in glast[1])]
@@ -123,7 +123,7 @@ class AddToSearchAddToCommand(sublime_plugin.TextCommand):
     full = sublime.Region(0, self.view.size())
     text = self.view.substr(full)
     rlines = list(self.view.lines(full))
-    insert = sorted(g_merge([text[r.a:r.b] for r in rlines], arg))
+    insert = sorted(g_merge([text[r.a:r.b] for r in rlines], arg), key=lambda x: x[0])
     toffset = 0
     selection = self.view.sel()
     selection.clear()
