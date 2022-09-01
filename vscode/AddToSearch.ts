@@ -112,8 +112,8 @@ function* g_merge(lines: string[], arg: Arg): Generator<[number, string]> {
   );
   if (!glast) {
     const i = lines.length;
-    if (lines[lines.length - 1]) {
-      yield [i, "\n"];
+    if (!lines.length || lines[lines.length - 1]) {
+      yield [i, ""];
     }
     glast = [i - 1, []];
     yield [i, `${arg[0]}:`];
@@ -168,12 +168,17 @@ export function activate(context: vscode.ExtensionContext) {
         await withAddTo(context, async (editor) => {
           const { document } = editor;
           const lines = getLines(document);
-          const insert = Array.from(g_merge(lines.map((x) => x.text), arg))
+          const tlines = lines.map((x) => x.text);
+          const last = lines[lines.length - 1].rangeIncludingLineBreak;
+          if (last.isEmpty) {
+            tlines.pop();
+          }
+          const insert = Array.from(g_merge(tlines, arg))
             .sort(cmpf((x) => x[0]));
           const ilines: number[] = [];
           await editor.edit((edit) => {
             let ioffset = 0;
-            if (insert.some((x) => x[0] === lines.length)) {
+            if (!last.isEmpty && last.isSingleLine) {
               edit.insert(lines[lines.length - 1].range.end, "\n");
             }
             for (const [iline, tline] of insert) {
