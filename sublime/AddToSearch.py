@@ -74,13 +74,18 @@ def make_arg(view: sublime.View) -> Arg:
   lines = [(view.rowcol(r.a)[0], view.substr(r)) for r in rs]
   return (path, lines)
 
+def ukey(i: int, s: str):
+  return "%d:%s" % (i, s.strip())
+
 def g_lines(lines: typing.List[str], i: int):
   while i < len(lines) and not RE_FILE.match(lines[i]):
     m = RE_LINE.match(lines[i])
     if m:
-      yield (i, int(m[1]) - 1)
+      g: _Group = (i, (int(m[1]) - 1, lines[i][len(m[0]):]))
+      yield g
     i += 1
-Group = typing.Tuple[int, typing.List[typing.Tuple[int, int]]]
+_Group = typing.Tuple[int, typing.Tuple[int, str]]
+Group = typing.Tuple[int, typing.List[_Group]]
 def g_files(lines: typing.List[str]):
   for i, line in enumerate(lines):
     m = RE_FILE.match(line)
@@ -89,15 +94,16 @@ def g_files(lines: typing.List[str]):
       yield (s, (i, list(g_lines(lines, i + 1))))
 
 def g_merge(lines: typing.List[str], arg: Arg):
-  dlines = {"%5d: %s" % (j + 1, line): j for j, line in arg[1]}
+  arg[1] = sorted(arg[1], key=lambda x: x[0])
+  dlines = {ukey(*js): i for i, js in enumerate(arg[1])}
   glast: Group = None
   for path, g in g_files(lines):
     if path == arg[0]:
       glast = g
-      for i, _ in g[1]:
+      for _, js in g[1]:
         # allow duplicate line number with different text
-        dlines.pop(lines[i], None)
-  alines = sorted(dlines.items())
+        dlines.pop(ukey(*js), None)
+  alines = sorted(dlines.values())
   if not glast:
     i = len(lines)
     if not lines or lines[-1]:
@@ -106,14 +112,14 @@ def g_merge(lines: typing.List[str], arg: Arg):
     yield (i, "%s:" % arg[0])
   mm = 0
   ii = [glast[0], *(i for i, _ in glast[1])]
-  jj = [*(j for _, j in glast[1]), None]
+  jj = [*(j for _, (j, _) in glast[1]), None]
   for i, jm in zip(ii, jj):
     for m in range(mm, len(alines)):
-      line, j = alines[m]
+      j, s = arg[1][alines[m]]
       # duplicate line number with new text comes after old text
       if jm is not None and j >= jm:
         break
-      yield (i + 1, line)
+      yield (i + 1, "%5d: %s" % (j + 1, s))
       mm = m + 1
 
 LOADING = "AddToSearch"

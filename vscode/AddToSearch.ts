@@ -71,16 +71,21 @@ function make_arg(editor: vscode.TextEditor): Arg {
   ];
 }
 
-function* g_lines(lines: string[], i: number): Generator<[number, number]> {
+function ukey(i: number, s: string) {
+  return `${i}:${s.trim()}`;
+}
+
+function* g_lines(lines: string[], i: number): Generator<_Group> {
   while (i < lines.length && !RE_FILE.test(lines[i])) {
     const m = lines[i].match(RE_LINE);
     if (m) {
-      yield [i, +m[1] - 1];
+      yield [i, [+m[1] - 1, lines[i].slice(m[0].length)]];
     }
     ++i;
   }
 }
-type Group = [number, [number, number][]];
+type _Group = [number, [number, string]];
+type Group = [number, _Group[]];
 function* g_files(
   lines: string[],
 ): Generator<[string, Group]> {
@@ -94,22 +99,21 @@ function* g_files(
   }
 }
 function* g_merge(lines: string[], arg: Arg): Generator<[number, string]> {
+  arg[1].sort(cmpf((x) => x[0]));
   const dlines = new Map(
-    arg[1].map(([j, s]) => [`${`${j + 1}`.padStart(5)}: ${s}`, j]),
+    arg[1].map((js, i) => [ukey(...js), i]),
   );
   let glast: Group | null = null;
   for (const [path, g] of g_files(lines)) {
     if (path === arg[0]) {
       glast = g;
-      for (const [i] of g[1]) {
+      for (const [_i, js] of g[1]) {
         // allow duplicate line number with different text
-        dlines.delete(lines[i]);
+        dlines.delete(ukey(...js));
       }
     }
   }
-  const alines = Array.from(dlines).sort(
-    cmpn(cmpf((x) => x[0]), cmpf((x) => x[1])),
-  );
+  const alines = Array.from(dlines.values()).sort(cmp);
   if (!glast) {
     const i = lines.length;
     if (!lines.length || lines[lines.length - 1]) {
@@ -120,15 +124,15 @@ function* g_merge(lines: string[], arg: Arg): Generator<[number, string]> {
   }
   let mm = 0;
   const ii = [glast[0], ...glast[1].map((x) => x[0])];
-  const jj = [...glast[1].map((x) => x[1]), null];
+  const jj = [...glast[1].map((x) => x[1][0]), null];
   for (const [i, jm] of zip(ii, jj)) {
     while (mm < alines.length) {
-      const [s, j] = alines[mm];
+      const [j, s] = arg[1][alines[mm]];
       // duplicate line number with new text comes after old text
       if (jm !== null && j >= jm) {
         break;
       }
-      yield [i + 1, s];
+      yield [i + 1, `${`${j + 1}`.padStart(5)}: ${s}`];
       ++mm;
     }
   }
