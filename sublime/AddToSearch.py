@@ -148,6 +148,7 @@ class AddToSearchAddCommand(sublime_plugin.TextCommand, WithPath):
   def is_enabled(self):
     if not self.path: return False
     settings = Settings.cmd(self)
+    if self.path == settings.add_to: return False
     return bool(settings.add_to)
 
 class ViewEvents(sublime_plugin.EventListener):

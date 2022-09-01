@@ -161,6 +161,9 @@ export function activate(context: vscode.ExtensionContext) {
         if (!document.fileName) {
           return;
         }
+        if (document.fileName === context.workspaceState.get(ADD_TO)) {
+          return;
+        }
         const arg = make_arg(editor);
         await withAddTo(context, async (editor) => {
           const { document } = editor;
