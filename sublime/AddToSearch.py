@@ -129,7 +129,7 @@ class AddToSearchAddToCommand(sublime_plugin.TextCommand):
     selection.clear()
     if rlines[-1].b == full.b:
       self.view.insert(edit, full.b, eol)
-      toffset += len(eol)
+      full.b += len(eol)
     for iline, tline in insert:
       at = toffset + (rlines[iline].a if iline < len(rlines) else full.b)
       self.view.insert(edit, at, tline + eol)
