@@ -177,11 +177,10 @@ export function activate(context: vscode.ExtensionContext) {
               edit.insert(lines[lines.length - 1].range.end, "\n");
             }
             for (const [iline, tline] of insert) {
-              const i = iline;
               if (tline) {
-                ilines.push(ioffset + i);
+                ilines.push(ioffset + iline);
               }
-              edit.insert(new vscode.Position(i, 0), tline + "\n");
+              edit.insert(new vscode.Position(iline, 0), tline + "\n");
               ++ioffset;
             }
           });
