@@ -69,7 +69,7 @@ function make_arg(editor: vscode.TextEditor): Arg | null {
   }
   return [
     path,
-    Array.from(ilines).sort().map((iline) => document.lineAt(iline)).map(
+    Array.from(ilines).sort(cmp).map((iline) => document.lineAt(iline)).map(
       (line) => [line.lineNumber, line.text],
     ),
   ];
