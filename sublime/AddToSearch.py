@@ -162,6 +162,7 @@ class ViewEvents(sublime_plugin.EventListener):
       set_syntax(view)
     arg = view.settings().get(LOADING)
     if arg:
+      del view.settings()[LOADING]
       view.run_command("add_to_search_add_to", dict(arg=arg))
 
   def on_post_save(self, view: sublime.View):
