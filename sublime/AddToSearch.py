@@ -119,7 +119,7 @@ def g_merge(lines: typing.List[str], arg: Arg):
       # duplicate line number with new text comes after old text
       if jm is not None and j >= jm:
         break
-      yield (i + 1, "%5d: %s" % (j + 1, s))
+      yield (i + 1, " %4d: %s" % (j + 1, s))
       mm = m + 1
 
 LOADING = "AddToSearch"
