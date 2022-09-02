@@ -171,7 +171,7 @@ function* g_merge(lines: string[], arg: Arg): Generator<[number, string]> {
       if (jm !== null && j >= jm) {
         break;
       }
-      yield [i + 1, ` ${`${j + 1}`.padStart(4)}: ${s}`];
+      yield [i + 1, `  ${`${j + 1}`.padStart(5)}: ${s}`];
       ++mm;
     }
   }
