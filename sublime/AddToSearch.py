@@ -174,11 +174,16 @@ class AddToSearchAddToCommand(sublime_plugin.TextCommand):
   def run(self, edit: sublime.Edit, args: typing.List[Arg]):
     eol = "\n"
     full, rlines, tlines = get_lines(self.view)
+    eof = rlines[-1].b == full.b
+    eof_eol = eof and not rlines[-1].empty()
+    if eof and rlines[-1].empty():
+      rlines.pop()
+      tlines.pop()
     insert = sorted(g_merge2(tlines, args), key=lambda x: x[0])
     toffset = 0
     selection = self.view.sel()
     selection.clear()
-    if rlines[-1].b == full.b:
+    if eof_eol:
       self.view.insert(edit, full.b, eol)
       full.b += len(eol)
     for iline, tline in insert:
