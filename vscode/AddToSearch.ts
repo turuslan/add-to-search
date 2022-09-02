@@ -190,8 +190,19 @@ function* g_merge2(lines: string[], args: Arg[]): Generator<[number, string]> {
   args = Array.from(_args.values());
   const existing = new Set(lines.map(_g_file).filter((x) => x));
   args = filter2(args, (x) => existing.has(x[0])).reverse().flat();
+  const v = new Set<number>();
   for (const arg of args) {
-    yield* g_merge(lines, arg);
+    for (const [i, s] of g_merge(lines, arg)) {
+      if (_g_file(s) && v.has(i)) {
+        yield [i, ""];
+      }
+      if (s) {
+        v.add(i);
+      } else {
+        v.delete(i);
+      }
+      yield [i, s];
+    }
   }
 }
 

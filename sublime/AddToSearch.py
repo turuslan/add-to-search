@@ -166,8 +166,17 @@ def g_merge2(lines: typing.List[str], args: typing.List[Arg]):
   args = list(_args.values())
   existing = set(filter(None, map(_g_file, lines)))
   args = [x for xs in reversed(filter2(args, lambda x: x[0] in existing)) for x in xs]
+  v: typing.Set[int] = set()
   for arg in args:
-    yield from g_merge(lines, arg)
+    for i, s in g_merge(lines, arg):
+      print((bool(s), bool(_g_file(s)), i in v), (i, s))
+      if _g_file(s) and i in v:
+        yield (i, "")
+      if s:
+        v.add(i)
+      else:
+        v.discard(i)
+      yield (i, s)
 
 LOADING = "AddToSearch"
 class AddToSearchAddToCommand(sublime_plugin.TextCommand):
